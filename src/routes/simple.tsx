@@ -146,7 +146,9 @@ function SimplePage() {
               </div>
             )}
           />
-          <Button type="submit">Save Product</Button>
+          <Button className="cursor-pointer" variant="outline" type="submit">
+            Save Product
+          </Button>
         </form>
       </section>
     </main>
