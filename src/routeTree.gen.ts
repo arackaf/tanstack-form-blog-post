@@ -9,8 +9,20 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SimpleRouteImport } from './routes/simple'
+import { Route as ComplexRouteImport } from './routes/complex'
 import { Route as IndexRouteImport } from './routes/index'
 
+const SimpleRoute = SimpleRouteImport.update({
+  id: '/simple',
+  path: '/simple',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ComplexRoute = ComplexRouteImport.update({
+  id: '/complex',
+  path: '/complex',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +31,50 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/complex': typeof ComplexRoute
+  '/simple': typeof SimpleRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/complex': typeof ComplexRoute
+  '/simple': typeof SimpleRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/complex': typeof ComplexRoute
+  '/simple': typeof SimpleRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/complex' | '/simple'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/complex' | '/simple'
+  id: '__root__' | '/' | '/complex' | '/simple'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ComplexRoute: typeof ComplexRoute
+  SimpleRoute: typeof SimpleRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/simple': {
+      id: '/simple'
+      path: '/simple'
+      fullPath: '/simple'
+      preLoaderRoute: typeof SimpleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/complex': {
+      id: '/complex'
+      path: '/complex'
+      fullPath: '/complex'
+      preLoaderRoute: typeof ComplexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,6 +87,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ComplexRoute: ComplexRoute,
+  SimpleRoute: SimpleRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

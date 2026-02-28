@@ -1,4 +1,4 @@
-import { HeadContent, Scripts, createRootRouteWithContext } from "@tanstack/react-router";
+import { HeadContent, Link, Scripts, createRootRouteWithContext } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 
@@ -49,6 +49,24 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body className="font-sans antialiased selection:bg-[rgba(79,184,178,0.24)]">
         <TanStackQueryProvider>
+          <header className="border-b border-zinc-200 px-8 py-4">
+            <nav className="flex gap-3">
+              <Link
+                to="/simple"
+                className="rounded px-3 py-1 text-blue-600 transition-colors hover:text-blue-700"
+                activeProps={{ className: "bg-blue-50 font-semibold text-blue-900 no-underline" }}
+              >
+                Simple
+              </Link>
+              <Link
+                to="/complex"
+                className="rounded px-3 py-1 text-blue-600 transition-colors hover:text-blue-700"
+                activeProps={{ className: "bg-blue-50 font-semibold text-blue-900 no-underline" }}
+              >
+                Complex
+              </Link>
+            </nav>
+          </header>
           {children}
           <TanStackDevtools
             config={{
