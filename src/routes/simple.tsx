@@ -93,7 +93,7 @@ function SimplePage() {
           <form.Field
             name="price"
             validators={{
-              onChange: ({ value }) => {
+              onBlur: ({ value }) => {
                 if (value === "") {
                   return "Required!";
                 }
@@ -205,9 +205,9 @@ function SimplePage() {
           />
           {formErrorMap.onBlur?.price && <p className="text-red-500">{formErrorMap.onBlur.price}</p>}
           <Button
-            // onClick={async () => {
-            //   await form.validateAllFields("submit");
-            // }}
+            onClick={async () => {
+              await form.validateAllFields("submit");
+            }}
             className="cursor-pointer"
             variant="outline"
             type="submit"
