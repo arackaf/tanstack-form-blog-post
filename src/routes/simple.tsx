@@ -42,7 +42,7 @@ function SimplePage() {
         }
       },
     },
-    onSubmit: async ({ formApi, value }) => {
+    onSubmit: async ({ value }) => {
       console.log(value);
     },
   });
@@ -63,7 +63,7 @@ function SimplePage() {
           <form.Field
             name="name"
             validators={{
-              onChange: ({ fieldApi, value, ...rest }) => {
+              onChange: ({ value }) => {
                 if (value === "Secret Product") {
                   form.fieldInfo.price.instance?.setValue(9.99);
                 }
