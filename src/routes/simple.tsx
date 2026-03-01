@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { useForm } from "@tanstack/react-form-start";
+import { useForm, useStore } from "@tanstack/react-form";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { Button } from "#/components/ui/button";
@@ -13,7 +13,7 @@ import { cn } from "#/lib/utils";
 
 interface Product {
   name: string;
-  price: number;
+  price: number | string;
   added?: Date;
   description: string;
   skuNumber: string;
@@ -33,10 +33,20 @@ export const Route = createFileRoute("/simple")({
 function SimplePage() {
   const form = useForm({
     defaultValues: defaultProduct,
-    onSubmit: async ({ value }) => {
+
+    validators: {
+      onBlur: ({ value }) => {
+        console.log({ value });
+        if (value.name && value.name === "TanStack" && value.price !== 9.99) {
+          return { price: "TanStack is only $9.99!!!" };
+        }
+      },
+    },
+    onSubmit: async ({ formApi, value }) => {
       console.log(value);
     },
   });
+  const formErrorMap = useStore(form.store, (state) => state.errorMap);
 
   return (
     <main className="p-8">
@@ -45,12 +55,24 @@ function SimplePage() {
           onSubmit={(event) => {
             event.preventDefault();
             event.stopPropagation();
+
             void form.handleSubmit();
           }}
           className="space-y-4"
         >
           <form.Field
             name="name"
+            validators={{
+              onChange: ({ fieldApi, value, ...rest }) => {
+                if (value === "Secret Product") {
+                  form.fieldInfo.price.instance?.setValue(9.99);
+                }
+
+                if (!value) {
+                  return "Name is required";
+                }
+              },
+            }}
             children={(field) => (
               <div className="flex flex-col gap-1">
                 <Label htmlFor={field.name}>Product Name</Label>
@@ -60,13 +82,32 @@ function SimplePage() {
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(event) => field.handleChange(event.target.value)}
-                  placeholder="Keyboard"
                 />
+                {!field.state.meta.isValid && <p className="text-red-500">{field.state.meta.errors.join(", ")}</p>}
+                {field.state.meta.isPristine && <p className="text-gray-500">Pristine</p>}
+                {field.state.meta.isTouched && <p className="text-gray-500">Touched</p>}
+                {field.state.meta.isDirty && <p className="text-gray-500">Dirty</p>}
               </div>
             )}
           />
           <form.Field
             name="price"
+            validators={{
+              onChange: ({ value }) => {
+                if (value === "") {
+                  return "Required!";
+                }
+                if (typeof value !== "number") {
+                  return "Invalid price";
+                }
+                if (value === 0) {
+                  return "Nothing is free, here!";
+                }
+                if (value < 0) {
+                  return "Bruh ...";
+                }
+              },
+            }}
             children={(field) => (
               <div className="flex flex-col gap-1">
                 <Label htmlFor={field.name}>Price</Label>
@@ -74,18 +115,33 @@ function SimplePage() {
                   id={field.name}
                   name={field.name}
                   type="number"
-                  min="0"
                   step="0.01"
                   value={field.state.value}
                   onBlur={field.handleBlur}
-                  onChange={(event) => field.handleChange(event.target.valueAsNumber || 0)}
+                  onChange={(event) => {
+                    const value = event.target.valueAsNumber;
+                    field.handleChange(isNaN(value) ? "" : value);
+                  }}
                   placeholder="49.99"
                 />
+                {!field.state.meta.isValid && <p className="text-red-500">{field.state.meta.errors.join(", ")}</p>}
+                {formErrorMap.onBlur?.price && <p className="text-red-500">{formErrorMap.onBlur.price}</p>}
+
+                {field.state.meta.isPristine && <p className="text-gray-500">Pristine</p>}
+                {field.state.meta.isTouched && <p className="text-gray-500">Touched</p>}
+                {field.state.meta.isDirty && <p className="text-gray-500">Dirty</p>}
               </div>
             )}
           />
           <form.Field
             name="added"
+            validators={{
+              onChange: ({ value }) => {
+                if (!value) {
+                  return "Required!";
+                }
+              },
+            }}
             children={(field) => (
               <div className="flex flex-col gap-1">
                 <Label htmlFor="added-date">Added</Label>
@@ -111,6 +167,7 @@ function SimplePage() {
                     />
                   </PopoverContent>
                 </Popover>
+                {!field.state.meta.isValid && <p className="text-red-500">{field.state.meta.errors.join(", ")}</p>}
               </div>
             )}
           />
@@ -146,7 +203,15 @@ function SimplePage() {
               </div>
             )}
           />
-          <Button className="cursor-pointer" variant="outline" type="submit">
+          {formErrorMap.onBlur?.price && <p className="text-red-500">{formErrorMap.onBlur.price}</p>}
+          <Button
+            // onClick={async () => {
+            //   await form.validateAllFields("submit");
+            // }}
+            className="cursor-pointer"
+            variant="outline"
+            type="submit"
+          >
             Save Product
           </Button>
         </form>
