@@ -7,7 +7,7 @@ import { Label } from "#/components/ui/label";
 import { createServerFn } from "@tanstack/react-start";
 import { redirect } from "@tanstack/react-router";
 
-import { setResponseStatus } from "@tanstack/react-start/server";
+import { deleteCookie, getCookie, setCookie, setResponseStatus } from "@tanstack/react-start/server";
 
 interface Product {
   name: string;
@@ -17,6 +17,18 @@ const defaultProduct: Product = {
   name: "",
   metadata: [],
 };
+
+const successfulFormStateCookieName = "server-integration-success-form-state";
+
+function getRedirectHeadersFromResponse(response: Response) {
+  const redirectHeaders = new Headers();
+  response.headers.forEach((value, key) => {
+    if (key.toLowerCase() === "set-cookie") {
+      redirectHeaders.append(key, value);
+    }
+  });
+  return redirectHeaders;
+}
 
 export const formOpts = formOptions({
   defaultValues: defaultProduct,
@@ -38,11 +50,16 @@ export const handleForm = createServerFn({
       console.log("starting server validation");
       const validatedData = await serverValidate(ctx.data);
       console.log("validatedData", validatedData);
+
+      // Persist successful values for the next GET after redirect.
+      setCookie(successfulFormStateCookieName, JSON.stringify(validatedData));
     } catch (e) {
       if (e instanceof ServerValidateError) {
         console.log("server validate error", e.response);
-        // Log form errors or do any other logic here
-        return e.response;
+        throw redirect({
+          to: "/server-integration",
+          headers: getRedirectHeadersFromResponse(e.response),
+        });
       }
 
       // Some other error occurred when parsing the form
@@ -77,6 +94,30 @@ const serverValidate = createServerValidate({
 
 export const getFormDataFromServer = createServerFn({ method: "GET" }).handler(async () => {
   const fd = await getFormData();
+  const successfulFormState = getCookie(successfulFormStateCookieName);
+
+  if (successfulFormState) {
+    deleteCookie(successfulFormStateCookieName);
+    let parsedState: Product | null = null;
+    try {
+      parsedState = JSON.parse(successfulFormState) as Product;
+    } catch (error) {
+      console.error("Could not parse successful form state cookie", error);
+    }
+
+    if (!parsedState) {
+      console.log("fd", fd);
+      return fd;
+    }
+
+    const mergedState = {
+      ...fd,
+      values: parsedState,
+    };
+    console.log("fd", mergedState);
+    return mergedState;
+  }
+
   console.log("fd", fd);
   return fd;
 });
