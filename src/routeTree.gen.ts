@@ -10,7 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SimpleRouteImport } from './routes/simple'
-import { Route as ComplexRouteImport } from './routes/complex'
+import { Route as ServerIntegrationRouteImport } from './routes/server-integration'
 import { Route as IndexRouteImport } from './routes/index'
 
 const SimpleRoute = SimpleRouteImport.update({
@@ -18,9 +18,9 @@ const SimpleRoute = SimpleRouteImport.update({
   path: '/simple',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ComplexRoute = ComplexRouteImport.update({
-  id: '/complex',
-  path: '/complex',
+const ServerIntegrationRoute = ServerIntegrationRouteImport.update({
+  id: '/server-integration',
+  path: '/server-integration',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -31,31 +31,31 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/complex': typeof ComplexRoute
+  '/server-integration': typeof ServerIntegrationRoute
   '/simple': typeof SimpleRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/complex': typeof ComplexRoute
+  '/server-integration': typeof ServerIntegrationRoute
   '/simple': typeof SimpleRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/complex': typeof ComplexRoute
+  '/server-integration': typeof ServerIntegrationRoute
   '/simple': typeof SimpleRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/complex' | '/simple'
+  fullPaths: '/' | '/server-integration' | '/simple'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/complex' | '/simple'
-  id: '__root__' | '/' | '/complex' | '/simple'
+  to: '/' | '/server-integration' | '/simple'
+  id: '__root__' | '/' | '/server-integration' | '/simple'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ComplexRoute: typeof ComplexRoute
+  ServerIntegrationRoute: typeof ServerIntegrationRoute
   SimpleRoute: typeof SimpleRoute
 }
 
@@ -68,11 +68,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SimpleRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/complex': {
-      id: '/complex'
-      path: '/complex'
-      fullPath: '/complex'
-      preLoaderRoute: typeof ComplexRouteImport
+    '/server-integration': {
+      id: '/server-integration'
+      path: '/server-integration'
+      fullPath: '/server-integration'
+      preLoaderRoute: typeof ServerIntegrationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -87,7 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ComplexRoute: ComplexRoute,
+  ServerIntegrationRoute: ServerIntegrationRoute,
   SimpleRoute: SimpleRoute,
 }
 export const routeTree = rootRouteImport

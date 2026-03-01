@@ -17,6 +17,7 @@ interface Product {
   added?: Date;
   description: string;
   skuNumber: string;
+  metadata: { name: string; value: string }[];
 }
 const defaultProduct: Product = {
   name: "",
@@ -24,6 +25,7 @@ const defaultProduct: Product = {
   added: undefined,
   description: "",
   skuNumber: "",
+  metadata: [],
 };
 
 export const Route = createFileRoute("/simple")({
@@ -64,10 +66,6 @@ function SimplePage() {
             name="name"
             validators={{
               onChange: ({ value }) => {
-                if (value === "Secret Product") {
-                  form.fieldInfo.price.instance?.setValue(9.99);
-                }
-
                 if (!value) {
                   return "Name is required";
                 }
@@ -203,6 +201,80 @@ function SimplePage() {
               </div>
             )}
           />
+
+          <form.Field name="metadata" mode="array">
+            {(field) => (
+              <div className="flex flex-col gap-1">
+                <Button variant="outline" type="button" onClick={() => field.pushValue({ name: "", value: "" })}>
+                  Add Metadata
+                </Button>
+                {field.state.value.map((_, idx) => {
+                  return (
+                    <div className="flex gap-1">
+                      <div>
+                        <form.Field
+                          name={`metadata[${idx}].name`}
+                          validators={{
+                            onBlur: ({ value }) => {
+                              if (!value) {
+                                return "Name is required";
+                              }
+                            },
+                          }}
+                          children={(field) => (
+                            <div className="flex flex-col gap-1">
+                              <Label htmlFor={field.name}>Name</Label>
+                              <Input
+                                id={field.name}
+                                name={field.name}
+                                value={field.state.value}
+                                onBlur={field.handleBlur}
+                                onChange={(event) => field.handleChange(event.target.value)}
+                                placeholder=""
+                              />
+                              {!field.state.meta.isValid && <p className="text-red-500">{field.state.meta.errors.join(", ")}</p>}
+                            </div>
+                          )}
+                        />
+                      </div>
+                      <div>
+                        <form.Field
+                          name={`metadata[${idx}].value`}
+                          validators={{
+                            onBlur: ({ value }) => {
+                              if (!value) {
+                                return "Value is required";
+                              }
+                            },
+                          }}
+                          children={(field) => (
+                            <div className="flex flex-col gap-1">
+                              <Label htmlFor={field.name}>Value</Label>
+                              <Input
+                                id={field.name}
+                                name={field.name}
+                                value={field.state.value}
+                                onBlur={field.handleBlur}
+                                onChange={(event) => field.handleChange(event.target.value)}
+                                placeholder=""
+                              />
+                              {!field.state.meta.isValid && <p className="text-red-500">{field.state.meta.errors.join(", ")}</p>}
+                            </div>
+                          )}
+                        />
+                      </div>
+                      <div className="self-end">
+                        <Button variant="outline" type="button" onClick={() => field.removeValue(idx)}>
+                          Remove
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </form.Field>
+
           {formErrorMap.onBlur?.price && <p className="text-red-500">{formErrorMap.onBlur.price}</p>}
           <Button
             onClick={async () => {
