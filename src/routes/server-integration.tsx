@@ -251,16 +251,13 @@ function SimplePage() {
             )}
           </form.Field>
 
-          <Button
-            onClick={async () => {
-              console.log("clicked");
-            }}
-            className="cursor-pointer"
-            variant="outline"
-            type="submit"
-          >
-            Save Product
-          </Button>
+          <form.Subscribe selector={(formState) => [formState.canSubmit, formState.isSubmitting]}>
+            {([canSubmit, isSubmitting]) => (
+              <Button variant="outline" type="submit" disabled={!canSubmit}>
+                {isSubmitting ? "..." : "Submit"}
+              </Button>
+            )}
+          </form.Subscribe>
         </form>
       </section>
     </main>
