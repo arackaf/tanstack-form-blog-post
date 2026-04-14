@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { useForm, useStore } from "@tanstack/react-form";
+import { useStore } from "@tanstack/react-form";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { Button } from "#/components/ui/button";
@@ -11,51 +11,16 @@ import { Popover, PopoverContent, PopoverTrigger } from "#/components/ui/popover
 import { Textarea } from "#/components/ui/textarea";
 import { cn } from "#/lib/utils";
 import type { FC } from "react";
-
-interface Product {
-  name: string;
-  price: number | string;
-  added?: Date;
-  description: string;
-  skuNumber: string;
-  metadata: { name: string; value: string }[];
-}
-const defaultProduct: Product = {
-  name: "",
-  price: 0,
-  added: undefined,
-  description: "",
-  skuNumber: "",
-  metadata: [],
-};
+import { useProductForm, type ProductForm } from "#/lib/simple/useProductForm";
 
 export const Route = createFileRoute("/simple")({
   component: SimplePage,
 });
 
-const useProductForm = () => {
-  return useForm({
-    defaultValues: defaultProduct,
-
-    validators: {
-      onBlur: ({ value }) => {
-        console.log({ value });
-        if (value.name && value.name === "TanStack" && value.price !== 9.99) {
-          return { price: "TanStack is only $9.99!!!" };
-        }
-      },
-    },
-    onSubmit: async ({ value }) => {
-      console.log(value);
-    },
-  });
-};
-
-type ProductForm = ReturnType<typeof useProductForm>;
-
 function SimplePage() {
-  const form = useProductForm();
-  const formErrorMap = useStore(form.store, (state) => state.errorMap);
+  const form = useProductForm((product) => {
+    console.log("Submitting product", product);
+  });
 
   return (
     <main className="p-8">
@@ -72,7 +37,7 @@ function SimplePage() {
           <form.Field
             name="name"
             validators={{
-              onChange: ({ value }) => {
+              onSubmit: ({ value }) => {
                 if (!value) {
                   return "Name is required";
                 }
@@ -98,7 +63,7 @@ function SimplePage() {
           <form.Field
             name="price"
             validators={{
-              onBlur: ({ value }) => {
+              onSubmit: ({ value }) => {
                 if (value === "") {
                   return "Required!";
                 }
@@ -130,18 +95,13 @@ function SimplePage() {
                   placeholder="49.99"
                 />
                 {!field.state.meta.isValid && <p className="text-red-500">{field.state.meta.errors.join(", ")}</p>}
-                {formErrorMap.onBlur?.price && <p className="text-red-500">{formErrorMap.onBlur.price}</p>}
-
-                {field.state.meta.isPristine && <p className="text-gray-500">Pristine</p>}
-                {field.state.meta.isTouched && <p className="text-gray-500">Touched</p>}
-                {field.state.meta.isDirty && <p className="text-gray-500">Dirty</p>}
               </div>
             )}
           />
           <form.Field
             name="added"
             validators={{
-              onChange: ({ value }) => {
+              onSubmit: ({ value }) => {
                 if (!value) {
                   return "Required!";
                 }
@@ -176,22 +136,8 @@ function SimplePage() {
               </div>
             )}
           />
-          <form.Field
-            name="description"
-            children={(field) => (
-              <div className="flex flex-col gap-1">
-                <Label htmlFor={field.name}>Description</Label>
-                <Textarea
-                  id={field.name}
-                  name={field.name}
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(event) => field.handleChange(event.target.value)}
-                  placeholder="Short product description"
-                />
-              </div>
-            )}
-          />
+          {/* <DescriptionFieldUseStore form={form} /> */}
+          <DescriptionFieldSubscribe form={form} />
           <form.Field
             name="skuNumber"
             children={(field) => (
@@ -211,7 +157,6 @@ function SimplePage() {
 
           <ProductMetadata form={form} />
 
-          {formErrorMap.onBlur?.price && <p className="text-red-500">{formErrorMap.onBlur.price}</p>}
           <Button
             onClick={async () => {
               await form.validateAllFields("submit");
@@ -228,6 +173,88 @@ function SimplePage() {
   );
 }
 
+const DescriptionFieldUseStore: FC<{ form: ProductForm }> = (props) => {
+  const { form } = props;
+
+  //const price = form.getFieldValue("price");
+  const price = useStore(form.store, (state) => state.values.price);
+  const descriptionRequired = typeof price === "number" && price > 50;
+
+  return (
+    <form.Field
+      name="description"
+      validators={{
+        onSubmit: ({ value }) => {
+          const price = form.getFieldValue("price");
+          const descriptionRequired = typeof price === "number" && price > 50;
+
+          if (descriptionRequired && !value) {
+            return "Description is required when price is greater than $50";
+          }
+        },
+      }}
+      children={(field) => (
+        <div className="flex flex-col gap-1">
+          {descriptionRequired && <p className="text-yellow-800">Description is required when price is greater than $50</p>}
+          <Label htmlFor={field.name}>Description</Label>
+          <Textarea
+            id={field.name}
+            name={field.name}
+            value={field.state.value}
+            onBlur={field.handleBlur}
+            onChange={(event) => field.handleChange(event.target.value)}
+            placeholder="Short product description"
+          />
+          {!field.state.meta.isValid && <p className="text-red-500">{field.state.meta.errors.join(", ")}</p>}
+        </div>
+      )}
+    />
+  );
+};
+
+const DescriptionFieldSubscribe: FC<{ form: ProductForm }> = (props) => {
+  const { form } = props;
+
+  //const price = form.getFieldValue("price");
+  const price = useStore(form.store, (state) => state.values.price);
+  const descriptionRequired = typeof price === "number" && price > 50;
+
+  return (
+    <form.Subscribe selector={(formState) => ({ price: formState.values.price })}>
+      {({ price }) => (
+        <form.Field
+          name="description"
+          validators={{
+            onSubmit: ({ value }) => {
+              const price = form.getFieldValue("price");
+              const descriptionRequired = typeof price === "number" && price > 50;
+
+              if (descriptionRequired && !value) {
+                return "Description is required when price is greater than $50";
+              }
+            },
+          }}
+          children={(field) => (
+            <div className="flex flex-col gap-1">
+              {descriptionRequired && <p className="text-yellow-800">Description is required when price is greater than $50</p>}
+              <Label htmlFor={field.name}>Description</Label>
+              <Textarea
+                id={field.name}
+                name={field.name}
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(event) => field.handleChange(event.target.value)}
+                placeholder="Short product description"
+              />
+              {!field.state.meta.isValid && <p className="text-red-500">{field.state.meta.errors.join(", ")}</p>}
+            </div>
+          )}
+        />
+      )}
+    </form.Subscribe>
+  );
+};
+
 const ProductMetadata: FC<{ form: ProductForm }> = ({ form }) => {
   return (
     <form.Field name="metadata" mode="array">
@@ -243,7 +270,7 @@ const ProductMetadata: FC<{ form: ProductForm }> = ({ form }) => {
                   <form.Field
                     name={`metadata[${idx}].name`}
                     validators={{
-                      onBlur: ({ value }) => {
+                      onSubmit: ({ value }) => {
                         if (!value) {
                           return "Name is required";
                         }
@@ -269,7 +296,7 @@ const ProductMetadata: FC<{ form: ProductForm }> = ({ form }) => {
                   <form.Field
                     name={`metadata[${idx}].value`}
                     validators={{
-                      onBlur: ({ value }) => {
+                      onSubmit: ({ value }) => {
                         if (!value) {
                           return "Value is required";
                         }
