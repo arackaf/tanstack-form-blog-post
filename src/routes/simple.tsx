@@ -271,7 +271,7 @@ const ProductMetadata: FC<{ form: ProductForm }> = ({ form }) => {
           </Button>
           {field.state.value.map((_, idx) => {
             return (
-              <div className="flex gap-1">
+              <div key={idx} className="flex gap-1">
                 <div>
                   <form.Field
                     name={`metadata[${idx}].name`}
