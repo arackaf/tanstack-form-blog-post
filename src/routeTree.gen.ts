@@ -10,17 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SimpleRouteImport } from './routes/simple'
-import { Route as ServerIntegrationRouteImport } from './routes/server-integration'
 import { Route as IndexRouteImport } from './routes/index'
 
 const SimpleRoute = SimpleRouteImport.update({
   id: '/simple',
   path: '/simple',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ServerIntegrationRoute = ServerIntegrationRouteImport.update({
-  id: '/server-integration',
-  path: '/server-integration',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -31,31 +25,27 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/server-integration': typeof ServerIntegrationRoute
   '/simple': typeof SimpleRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/server-integration': typeof ServerIntegrationRoute
   '/simple': typeof SimpleRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/server-integration': typeof ServerIntegrationRoute
   '/simple': typeof SimpleRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/server-integration' | '/simple'
+  fullPaths: '/' | '/simple'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/server-integration' | '/simple'
-  id: '__root__' | '/' | '/server-integration' | '/simple'
+  to: '/' | '/simple'
+  id: '__root__' | '/' | '/simple'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ServerIntegrationRoute: typeof ServerIntegrationRoute
   SimpleRoute: typeof SimpleRoute
 }
 
@@ -66,13 +56,6 @@ declare module '@tanstack/react-router' {
       path: '/simple'
       fullPath: '/simple'
       preLoaderRoute: typeof SimpleRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/server-integration': {
-      id: '/server-integration'
-      path: '/server-integration'
-      fullPath: '/server-integration'
-      preLoaderRoute: typeof ServerIntegrationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -87,7 +70,6 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ServerIntegrationRoute: ServerIntegrationRoute,
   SimpleRoute: SimpleRoute,
 }
 export const routeTree = rootRouteImport

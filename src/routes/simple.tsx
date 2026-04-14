@@ -215,42 +215,41 @@ const DescriptionFieldUseStore: FC<{ form: ProductForm }> = (props) => {
 const DescriptionFieldSubscribe: FC<{ form: ProductForm }> = (props) => {
   const { form } = props;
 
-  //const price = form.getFieldValue("price");
-  const price = useStore(form.store, (state) => state.values.price);
-  const descriptionRequired = typeof price === "number" && price > 50;
-
   return (
     <form.Subscribe selector={(formState) => ({ price: formState.values.price })}>
-      {({ price }) => (
-        <form.Field
-          name="description"
-          validators={{
-            onSubmit: ({ value }) => {
-              const price = form.getFieldValue("price");
-              const descriptionRequired = typeof price === "number" && price > 50;
+      {({ price }) => {
+        const descriptionRequired = typeof price === "number" && price > 50;
+        return (
+          <form.Field
+            name="description"
+            validators={{
+              onSubmit: ({ value }) => {
+                const price = form.getFieldValue("price");
+                const descriptionRequired = typeof price === "number" && price > 50;
 
-              if (descriptionRequired && !value) {
-                return "Description is required when price is greater than $50";
-              }
-            },
-          }}
-          children={(field) => (
-            <div className="flex flex-col gap-1">
-              {descriptionRequired && <p className="text-yellow-800">Description is required when price is greater than $50</p>}
-              <Label htmlFor={field.name}>Description</Label>
-              <Textarea
-                id={field.name}
-                name={field.name}
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(event) => field.handleChange(event.target.value)}
-                placeholder="Short product description"
-              />
-              {!field.state.meta.isValid && <p className="text-red-500">{field.state.meta.errors.join(", ")}</p>}
-            </div>
-          )}
-        />
-      )}
+                if (descriptionRequired && !value) {
+                  return "Description is required when price is greater than $50";
+                }
+              },
+            }}
+            children={(field) => (
+              <div className="flex flex-col gap-1">
+                {descriptionRequired && <p className="text-yellow-800">Description is required when price is greater than $50</p>}
+                <Label htmlFor={field.name}>Description</Label>
+                <Textarea
+                  id={field.name}
+                  name={field.name}
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(event) => field.handleChange(event.target.value)}
+                  placeholder="Short product description"
+                />
+                {!field.state.meta.isValid && <p className="text-red-500">{field.state.meta.errors.join(", ")}</p>}
+              </div>
+            )}
+          />
+        );
+      }}
     </form.Subscribe>
   );
 };
