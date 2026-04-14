@@ -34,29 +34,18 @@ function SimplePage() {
           }}
           className="space-y-4"
         >
-          <form.Field
+          <form.AppField
             name="name"
             validators={{
               onSubmit: ({ value }) => {
                 if (!value) {
-                  return "Name is required";
+                  return "Product name is required!";
                 }
               },
             }}
-            children={(field) => (
-              <div className="flex flex-col gap-1">
-                <Label htmlFor={field.name}>Product Name</Label>
-                <Input
-                  id={field.name}
-                  name={field.name}
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(event) => field.handleChange(event.target.value)}
-                />
-                {!field.state.meta.isValid && <p className="text-red-500">{field.state.meta.errors.join(", ")}</p>}
-              </div>
-            )}
+            children={(field) => <field.BasicTextField label="Product Name" />}
           />
+
           <form.Field
             name="price"
             validators={{
@@ -135,28 +124,16 @@ function SimplePage() {
           />
           {/* <DescriptionFieldUseStore form={form} /> */}
           <DescriptionFieldSubscribe form={form} />
-          <form.Field
+          <form.AppField
             name="skuNumber"
             validators={{
               onSubmit: ({ value }) => {
                 if (!value) {
-                  return "Name is required";
+                  return "SKU is required";
                 }
               },
             }}
-            children={(field) => (
-              <div className="flex flex-col gap-1">
-                <Label htmlFor={field.name}>SKU Number</Label>
-                <Input
-                  id={field.name}
-                  name={field.name}
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(event) => field.handleChange(event.target.value)}
-                  placeholder="SKU-12345"
-                />
-              </div>
-            )}
+            children={(field) => <field.BasicTextField label="SKU Number" />}
           />
 
           <ProductMetadata form={form} />

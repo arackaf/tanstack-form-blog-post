@@ -140,6 +140,13 @@ function SimplePage() {
           <DescriptionFieldSubscribe form={form} />
           <form.Field
             name="skuNumber"
+            validators={{
+              onSubmit: ({ value }) => {
+                if (!value) {
+                  return "Name is required";
+                }
+              },
+            }}
             children={(field) => (
               <div className="flex flex-col gap-1">
                 <Label htmlFor={field.name}>SKU Number</Label>

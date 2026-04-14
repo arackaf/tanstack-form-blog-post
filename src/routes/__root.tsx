@@ -58,6 +58,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               >
                 Simple
               </Link>
+              <Link
+                to="/custom"
+                className="rounded px-3 py-1 text-blue-600 transition-colors hover:text-blue-700"
+                activeProps={{ className: "bg-blue-50 font-semibold text-blue-900 no-underline" }}
+              >
+                Custom
+              </Link>
             </nav>
           </header>
           {children}
