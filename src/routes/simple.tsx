@@ -30,7 +30,7 @@ function SimplePage() {
             event.preventDefault();
             event.stopPropagation();
 
-            void form.handleSubmit();
+            form.handleSubmit();
           }}
           className="space-y-4"
         >
