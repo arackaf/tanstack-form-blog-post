@@ -21,7 +21,7 @@ const defaultProduct: Product = {
   metadata: [],
 };
 
-const { fieldContext, useFieldContext, formContext, useFormContext } = createFormHookContexts();
+const { fieldContext, useFieldContext, formContext } = createFormHookContexts();
 
 const BasicTextField: FC<{ label: string }> = (props) => {
   const { label } = props;
@@ -48,8 +48,6 @@ const { useAppForm } = createFormHook({
   fieldComponents: { BasicTextField },
   formComponents: {},
 });
-
-export { useFieldContext, useFormContext };
 
 export const useProductForm = (onSubmit: (value: Product) => void) => {
   return useAppForm({
