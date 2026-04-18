@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { useStore } from "@tanstack/react-form";
+import { useStore, type AnyFieldApi } from "@tanstack/react-form";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { Button } from "#/components/ui/button";
@@ -16,6 +16,24 @@ import { useProductForm, type ProductForm } from "#/lib/custom/useProductForm";
 export const Route = createFileRoute("/custom")({
   component: SimplePage,
 });
+
+const SimpleTextField: FC<{ label: string; field: AnyFieldApi }> = (props) => {
+  const { label, field } = props;
+
+  return (
+    <div className="flex flex-col gap-1">
+      <Label htmlFor={field.name}>{label}</Label>
+      <Input
+        id={field.name}
+        name={field.name}
+        value={field.state.value}
+        onBlur={field.handleBlur}
+        onChange={(event) => field.handleChange(event.target.value)}
+      />
+      {!field.state.meta.isValid && <p className="text-red-500">{field.state.meta.errors.join(", ")}</p>}
+    </div>
+  );
+};
 
 function SimplePage() {
   const form = useProductForm((product) => {
@@ -124,7 +142,7 @@ function SimplePage() {
           />
           {/* <DescriptionFieldUseStore form={form} /> */}
           <DescriptionFieldSubscribe form={form} />
-          <form.AppField
+          <form.Field
             name="skuNumber"
             validators={{
               onSubmit: ({ value }) => {
@@ -133,7 +151,7 @@ function SimplePage() {
                 }
               },
             }}
-            children={(field) => <field.BasicTextField label="SKU Number" />}
+            children={(field) => <SimpleTextField label="SKU Number" field={field} />}
           />
 
           <ProductMetadata form={form} />
